@@ -20,7 +20,16 @@ allprojects {
     repositories {
         google()
         jcenter()
-        mavenCentral()
+//        mavenCentral()
+/*
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+            options.addStringOption('encoding', 'UTF-8')
+        }
+*/
+        tasks.withType(Javadoc).all {
+            enabled = false
+        }
     }
 }
 

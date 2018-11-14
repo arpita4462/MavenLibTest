@@ -1,20 +1,20 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-
+apply plugin: 'maven-publish'
 //ext {
 //
 //}
 
+apply plugin: 'maven'
 android {
     compileSdkVersion 28
-
-
 
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 28
         versionCode 1
         versionName project.getProperty("libraryVersion")
+//        versionName "1.0.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -27,7 +27,14 @@ android {
         }
     }
 
+//    lintOptions {
+//        abortOnError true
+//        disable 'LintError'
+//    }
 }
+
+
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -40,5 +47,56 @@ dependencies {
 repositories {
     mavenCentral()
 }
-//apply from: 'https://raw.githubusercontent.com/arpita4462/JCenter/master/bintray.gradle'
-//apply from: 'https://raw.githubusercontent.com/arpita4462/JCenter/master/publications.gradle'
+//
+
+task copyDependenciesToLib(type: Copy) {
+    from configurations.findByName('compile')
+    into "${project.rootDir}/module/libs-all"
+}
+
+preBuild.dependsOn(copyDependenciesToLib)
+
+
+publishing {
+    publications {
+        AndroidDebug(MavenPublication) {
+            groupId "${GROUP}"
+            artifactId "${POM_ARTIFACT_ID}"
+            version "${VERSION_NAME}"
+            artifact "$buildDir/outputs/aar/module-debug.aar"
+        }
+        AndroidRelease(MavenPublication) {
+            groupId "${GROUP}"
+            artifactId "${POM_ARTIFACT_ID}"
+            version "${VERSION_NAME}"
+            artifact "$buildDir/outputs/aar/module-release.aar"
+        }
+    }
+}
+ext{
+    bintrayRepo = 'Arpita'
+    bintrayName = 'samplelibrary'
+
+    publishedGroupId = 'com.gmediasolutions.mavenlibtest'
+    artifact = 'samplelibrary'
+
+    libraryVersion = '0.0.1'
+    libraryName = 'samplelibrary'
+    libraryDescription = 'A Library for testing in Android'
+
+    siteUrl = 'https://github.com/arpita4462/MavenLibTest'
+    gitUrl = 'https://github.com/arpita4462/MavenLibTest.git'
+
+    developerId = 'arpita'
+    developerName = 'Arpita Patel'
+    developerEmail = 'arpitapatel4462@gmail.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+
+//apply from: 'https://raw.githubusercontent.com/arpita4462/MavenLibTest/blob/master/bintray.gradle'
+//apply from: 'https://raw.githubusercontent.com/arpita4462/Arpita/master/publications.gradle'
+    apply from: 'https://raw.githubusercontent.com/kostasdrakonakis/maven-upload/master/bintray.gradle'
+    apply from: 'https://raw.githubusercontent.com/kostasdrakonakis/maven-upload/master/publications.gradle'
+}
